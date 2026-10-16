@@ -4,7 +4,7 @@ Aplikasi web (admin panel) untuk toko **Ikobana Frozen Food**, dibangun dengan N
 Data diambil dari backend Spring Boot lewat REST API.
 
 - **Backend:** https://github.com/hxjbruh/ikobana-backend
-- **Desain Figma (PBL UAS):** _<!-- TODO: tempel tautan Figma di sini -->_ `https://www.figma.com/...`
+- **Desain Figma (PBL UAS):** [Desain PBL](https://www.figma.com/design/pEZ0bPbguRyatocuvTZjlr/Desain-PBL?node-id=1-2732&t=A5jZoRNV2Z0qw2Bt-1)
 - Dokumentasi lengkap autentikasi & otorisasi (Tugas #9) ada di README backend.
 
 ## Menjalankan
