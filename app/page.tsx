@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { login, logoutSession } from "./lib/api";
 
 export default function Home() {
@@ -35,109 +36,165 @@ export default function Home() {
   };
 
   return (
-    <main className="login-page">
-      <div className="login-card">
+    <main className="auth-page">
+      <div className="auth-card">
 
-        {/* LOGO */}
-        <div className="logo">
-          ❄
+        {/* LOGO & JUDUL */}
+        <div className="auth-logo">
+          <Image src="/ikobana-logo.png" alt="Logo Ikobana" width={48} height={49} loading="eager" />
         </div>
 
-        {/* JUDUL */}
-        <h1>Ikobana Frozenfood</h1>
+        <h1 className="auth-brand">Ikobana Frozenfood</h1>
+        <p className="auth-brand-sub">Portal Pengelola</p>
 
-        <p className="subtitle">
-          Masuk ke akun Anda
+        <h2 className="auth-title">Masuk ke Akun Anda</h2>
+        <p className="auth-desc">
+          Kelola stok rantai dingin,
+          <br />
+          operasional kasir harian.
         </p>
 
         {/* FORM */}
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} className="auth-form">
 
-          {/* EMAIL */}
-          <label>Email</label>
+          {/* EMAIL — backend login hanya menerima email */}
+          <div className="auth-label-row">
+            <label htmlFor="email">Email</label>
+            <span className="auth-hint">ID Pengguna Resmi</span>
+          </div>
 
-          <input
-            type="email"
-            placeholder="Masukkan email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <div className="auth-input">
+            <MailIcon />
+            <input
+              id="email"
+              type="email"
+              placeholder="nama@ikobana.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
           {/* PASSWORD */}
-          <label>Password</label>
+          <div className="auth-label-row">
+            <label htmlFor="password">Kata Sandi</label>
+            <a href="#" className="auth-link">Lupa Kata Sandi?</a>
+          </div>
 
-          <div className="password-container">
-
+          <div className="auth-input">
+            <LockIcon />
             <input
+              id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Masukkan password"
+              placeholder="Masukkan kata sandi"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-
             <button
               type="button"
+              className="auth-eye"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Sembunyikan kata sandi" : "Lihat kata sandi"}
             >
-              {showPassword ? "Sembunyikan" : "Lihat"}
+              <EyeIcon off={showPassword} />
             </button>
-
-          </div>
-
-          {/* INGAT & LUPA PASSWORD */}
-          <div className="login-option">
-
-            <label className="remember">
-              <input type="checkbox" />
-              Ingat saya
-            </label>
-
-            <a href="#">
-              Lupa password?
-            </a>
-
           </div>
 
           {/* ERROR */}
-          {error && (
-            <p style={{ color: "#dc2626", fontSize: "14px", margin: "4px 0" }}>
-              {error}
-            </p>
-          )}
+          {error && <p className="auth-error">{error}</p>}
 
-          {/* BUTTON LOGIN */}
-          <button
-            type="submit"
-            className="login-button"
-            disabled={loading}
-          >
-            {loading ? "Memproses..." : "Masuk ke Dashboard"}
+          {/* TOMBOL */}
+          <button type="submit" className="auth-btn-primary" disabled={loading}>
+            {loading ? "Memproses..." : <>Masuk ke Dashboard <ArrowIcon /></>}
           </button>
 
-          {/* GOOGLE */}
-          <button
-            type="button"
-            className="google-button"
-          >
-            G &nbsp; Masuk dengan Google
-          </button>
+          <a href="/register" className="auth-btn-secondary">
+            Register Sekarang <ArrowIcon />
+          </a>
 
         </form>
 
-        {/* DAFTAR */}
-        <p className="register-text">
+        {/* BANTUAN */}
+        <p className="auth-footnote">
+          Belum memiliki akses toko?{" "}
+          <a href="#" className="auth-link">Hubungi Administrator</a>
+        </p>
 
-          Belum punya akun?{" "}
+        <div className="auth-help">
+          <HeadsetIcon />
+          Bantuan Operasional WA:{" "}
+          <a href="https://wa.me/6281234567890" className="auth-link">0812-3456-7890</a>
+        </div>
 
-          <a href="/register">
-            Daftar sekarang
-          </a>
-
+        <p className="auth-copyright">
+          © 2026 Ikobana Frozen Food. Hak Cipta Dilindungi Undang-Undang.
         </p>
 
       </div>
     </main>
+  );
+}
+
+/* =========================
+   IKON (garis, mengikuti desain)
+========================= */
+
+const iconProps = {
+  width: 16,
+  height: 16,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  "aria-hidden": true,
+};
+
+function MailIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
+    </svg>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+      <circle cx="12" cy="16" r="1" />
+    </svg>
+  );
+}
+
+function EyeIcon({ off }: { off: boolean }) {
+  return (
+    <svg {...iconProps}>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="3" />
+      {off && <path d="M3 3l18 18" />}
+    </svg>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function HeadsetIcon() {
+  return (
+    <svg {...iconProps} width={14} height={14}>
+      <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+      <rect x="3" y="14" width="4" height="6" rx="1.5" />
+      <rect x="17" y="14" width="4" height="6" rx="1.5" />
+    </svg>
   );
 }

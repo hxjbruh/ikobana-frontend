@@ -1,27 +1,81 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { requireLogin } from "../lib/api";
+import {
+  getProfile,
+  requireLogin,
+  updateProfile,
+  type User,
+} from "../lib/api";
+
+// Info toko belum disimpan di backend, jadi hanya ditampilkan (tidak bisa diubah).
+const STORE_NAME = "Ikobana Frozenfood";
+const STORE_ADDRESS = "Malang, Jawa Timur";
+
+type ProfileForm = { fullName: string; email: string; phone: string };
+
+function toForm(user: User | null): ProfileForm {
+  return {
+    fullName: user?.fullName ?? "",
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
+  };
+}
 
 export default function SettingsPage() {
-  // Pengaturan toko hanya untuk Admin.
-  useEffect(() => {
-    requireLogin(["ADMIN"]);
-  }, []);
+  const [user, setUser] = useState<User | null>(null);
+  const [form, setForm] = useState<ProfileForm>(toForm(null));
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const [storeName, setStoreName] = useState("Ikobana Frozenfood");
-  const [email, setEmail] = useState("admin@ikobana.com");
-  const [phone, setPhone] = useState("0812-3456-7890");
-  const [address, setAddress] = useState(
-    "Malang, Jawa Timur"
-  );
+  // Pengaturan bisa dibuka semua user yang sudah login.
+  // Data diambil dari backend; kalau gagal, pakai data sesi di browser.
+  useEffect(() => {
+    const sessionUser = requireLogin();
+    if (!sessionUser) return;
+
+    getProfile()
+      .catch(() => sessionUser)
+      .then((loaded) => {
+        setUser(loaded);
+        setForm(toForm(loaded));
+      });
+  }, []);
 
   const [notification, setNotification] = useState(true);
   const [orderNotification, setOrderNotification] =
     useState(true);
 
-  const handleSave = () => {
-    alert("Pengaturan berhasil disimpan!");
+  const displayName = user?.fullName || user?.username || "Pengguna";
+  const initial = displayName.charAt(0).toUpperCase();
+  const roleLabel = user?.role === "ADMIN" ? "Administrator" : "Pengguna";
+
+  const updateField = (field: keyof ProfileForm, value: string) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleCancel = () => {
+    setForm(toForm(user));
+    setEditing(false);
+    setMessage(null);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      const updated = await updateProfile(form);
+      setUser(updated);
+      setForm(toForm(updated));
+      setEditing(false);
+      setMessage({ type: "success", text: "Profil berhasil diperbarui." });
+    } catch (err) {
+      setMessage({ type: "error", text: (err as Error).message });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -84,12 +138,12 @@ export default function SettingsPage() {
           <div className="admin-profile">
 
             <div className="avatar">
-              A
+              {initial}
             </div>
 
             <div>
-              <strong>Admin</strong>
-              <small>Administrator</small>
+              <strong>{displayName}</strong>
+              <small>{roleLabel}</small>
             </div>
 
           </div>
@@ -131,12 +185,12 @@ export default function SettingsPage() {
             <div className="header-user">
 
               <div className="avatar">
-                A
+                {initial}
               </div>
 
               <div>
-                <strong>Admin</strong>
-                <small>Administrator</small>
+                <strong>{displayName}</strong>
+                <small>{roleLabel}</small>
               </div>
 
             </div>
@@ -146,8 +200,8 @@ export default function SettingsPage() {
         </header>
 
 
-        {/* INFORMASI TOKO */}
-        <section className="settings-card">
+        {/* PROFIL & INFORMASI TOKO */}
+        <form className="settings-card" onSubmit={handleSave}>
 
           <div className="settings-title">
 
@@ -156,30 +210,72 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <h2>Informasi Toko</h2>
+              <h2>Profil & Informasi Toko</h2>
 
               <p>
-                Kelola informasi dasar toko Anda
+                {editing
+                  ? "Ubah data lalu klik Simpan"
+                  : "Data akun Anda saat mendaftar"}
               </p>
+            </div>
+
+            <div className="settings-title-actions">
+              {editing ? (
+                <>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={handleCancel}
+                    disabled={saving}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="save-button"
+                    disabled={saving}
+                  >
+                    {saving ? "Menyimpan..." : "Simpan"}
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="save-button"
+                  onClick={() => {
+                    setEditing(true);
+                    setMessage(null);
+                  }}
+                  disabled={!user}
+                >
+                  ✎ Edit Profil
+                </button>
+              )}
             </div>
 
           </div>
 
+          {message && (
+            <p className={`settings-message ${message.type}`}>
+              {message.text}
+            </p>
+          )}
 
           <div className="settings-form">
 
             <div className="form-group">
 
-              <label>
-                Nama Toko
+              <label htmlFor="fullName">
+                Nama Lengkap
               </label>
 
               <input
+                id="fullName"
                 type="text"
-                value={storeName}
-                onChange={(e) =>
-                  setStoreName(e.target.value)
-                }
+                value={form.fullName}
+                onChange={(e) => updateField("fullName", e.target.value)}
+                readOnly={!editing}
+                required
               />
 
             </div>
@@ -187,16 +283,34 @@ export default function SettingsPage() {
 
             <div className="form-group">
 
-              <label>
+              <label htmlFor="username">
+                Username
+              </label>
+
+              <input
+                id="username"
+                type="text"
+                value={user?.username ?? ""}
+                readOnly
+                title="Username tidak bisa diubah"
+              />
+
+            </div>
+
+
+            <div className="form-group">
+
+              <label htmlFor="email">
                 Email
               </label>
 
               <input
+                id="email"
                 type="email"
-                value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
+                value={form.email}
+                onChange={(e) => updateField("email", e.target.value)}
+                readOnly={!editing}
+                required
               />
 
             </div>
@@ -204,16 +318,17 @@ export default function SettingsPage() {
 
             <div className="form-group">
 
-              <label>
+              <label htmlFor="phone">
                 Nomor Telepon
               </label>
 
               <input
-                type="text"
-                value={phone}
-                onChange={(e) =>
-                  setPhone(e.target.value)
-                }
+                id="phone"
+                type="tel"
+                value={form.phone}
+                onChange={(e) => updateField("phone", e.target.value)}
+                readOnly={!editing}
+                required
               />
 
             </div>
@@ -221,23 +336,38 @@ export default function SettingsPage() {
 
             <div className="form-group">
 
-              <label>
+              <label htmlFor="storeName">
+                Nama Toko
+              </label>
+
+              <input
+                id="storeName"
+                type="text"
+                value={STORE_NAME}
+                readOnly
+              />
+
+            </div>
+
+
+            <div className="form-group">
+
+              <label htmlFor="storeAddress">
                 Alamat Toko
               </label>
 
-              <textarea
-                value={address}
-                onChange={(e) =>
-                  setAddress(e.target.value)
-                }
-                rows={3}
+              <input
+                id="storeAddress"
+                type="text"
+                value={STORE_ADDRESS}
+                readOnly
               />
 
             </div>
 
           </div>
 
-        </section>
+        </form>
 
 
         {/* NOTIFIKASI */}
@@ -331,7 +461,7 @@ export default function SettingsPage() {
         </section>
 
 
-        {/* AKUN ADMIN */}
+        {/* AKUN PENGGUNA */}
         <section className="settings-card">
 
           <div className="settings-title">
@@ -342,10 +472,10 @@ export default function SettingsPage() {
 
             <div>
 
-              <h2>Akun Admin</h2>
+              <h2>Akun Pengguna</h2>
 
               <p>
-                Informasi akun administrator
+                Informasi akun Anda
               </p>
 
             </div>
@@ -356,17 +486,17 @@ export default function SettingsPage() {
           <div className="admin-settings">
 
             <div className="large-avatar">
-              A
+              {initial}
             </div>
 
             <div>
 
               <h3>
-                Admin
+                {displayName}
               </h3>
 
               <p>
-                Administrator
+                {roleLabel}
               </p>
 
               <button className="change-password">
@@ -378,19 +508,6 @@ export default function SettingsPage() {
           </div>
 
         </section>
-
-
-        {/* BUTTON */}
-        <div className="settings-actions">
-
-          <button
-            className="save-button"
-            onClick={handleSave}
-          >
-            Simpan Perubahan
-          </button>
-
-        </div>
 
       </main>
 

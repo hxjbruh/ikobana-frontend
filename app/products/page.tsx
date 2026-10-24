@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useOptimistic, useState } from "react";
 import Link from "next/link";
 import {
   CATEGORY_LABELS,
-  deleteProduct,
   formatRupiah,
   getProducts,
   isAdmin,
@@ -12,6 +11,19 @@ import {
   type Product,
   type User,
 } from "../lib/api";
+import { createProductAction, deleteProductAction } from "./actions";
+import {
+  emptyFormState,
+  formValues,
+  ProductFields,
+  resultToState,
+  validateOnClient,
+  asActionInput,
+  type ProductFormState,
+} from "./product-form";
+
+// Produk yang tampil di tabel; pending = belum dikonfirmasi server.
+type ListedProduct = Product & { pending?: boolean };
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -20,6 +32,51 @@ export default function ProductsPage() {
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
+
+  // ==============================
+  // TAMBAH CEPAT + UPDATE OPTIMISTIK
+  // ==============================
+  // Produk baru langsung muncul di tabel (useOptimistic) sebelum server menjawab.
+  // Setelah Server Action selesai, baris sementara diganti data asli dari server;
+  // kalau gagal, baris sementara otomatis hilang.
+  const [optimisticProducts, addOptimisticProduct] = useOptimistic(
+    products as ListedProduct[],
+    (current, newProduct: ListedProduct) => [newProduct, ...current]
+  );
+
+
+  const [quickAddState, quickAddAction, quickAdding] = useActionState(
+    async (_prev: ProductFormState, formData: FormData): Promise<ProductFormState> => {
+      const values = formValues(formData);
+
+      const clientErrors = validateOnClient(values);
+      if (clientErrors) return { values, fieldErrors: clientErrors };
+
+      addOptimisticProduct({
+        id: -Date.now(),
+        sku: "…",
+        name: values.name,
+        category: values.category as Product["category"],
+        priceRetail: Number(values.priceRetail),
+        priceModal: Number(values.priceModal),
+        stock: Number(values.stock),
+        minimumStock: 5,
+        isActive: true,
+        isLowStock: false,
+        createdAt: new Date().toISOString(),
+        pending: true,
+      });
+
+      const result = await createProductAction(asActionInput(values));
+      if (result.data) {
+        const saved = result.data;
+        setProducts((current) => [saved, ...current]);
+        return { values: {}, fieldErrors: {}, success: true };
+      }
+      return resultToState(values, result);
+    },
+    emptyFormState
+  );
 
   // FILTER
   const [categoryFilter, setCategoryFilter] =
@@ -50,7 +107,7 @@ export default function ProductsPage() {
   // SEARCH + FILTER
   // ==============================
   const filteredProducts =
-    products.filter((product) => {
+    optimisticProducts.filter((product) => {
 
       // Filter berdasarkan nama
       const matchesSearch =
@@ -106,9 +163,9 @@ export default function ProductsPage() {
       return;
     }
 
-    try {
-      await deleteProduct(id);
+    const result = await deleteProductAction({ id });
 
+    if (result.data) {
       setProducts(
         products.filter(
           (product) =>
@@ -117,8 +174,8 @@ export default function ProductsPage() {
       );
 
       alert("Produk berhasil dihapus!");
-    } catch (err) {
-      alert(`Gagal menghapus produk: ${(err as Error).message}`);
+    } else {
+      alert(`Gagal menghapus produk: ${result.serverError || "data tidak valid"}`);
     }
   };
 
@@ -292,6 +349,36 @@ export default function ProductsPage() {
           )}
 
         </div>
+
+
+        {/* ==============================
+            TAMBAH CEPAT (Admin)
+        ============================== */}
+
+        {isAdmin(user) && (
+          <section className="quick-add-card">
+
+            <h3>Tambah Cepat</h3>
+            <p>Produk baru langsung muncul di tabel, lalu diganti data dari server.</p>
+
+            {quickAddState.success && (
+              <div className="form-success">Produk berhasil ditambahkan.</div>
+            )}
+
+            <form
+              action={quickAddAction}
+              noValidate
+              className="quick-add-form"
+            >
+              <ProductFields state={quickAddState} showDescription={false} />
+
+              <button type="submit" disabled={quickAdding}>
+                {quickAdding ? "Menyimpan..." : "+ Tambah"}
+              </button>
+            </form>
+
+          </section>
+        )}
 
 
         {/* ==============================
@@ -573,6 +660,7 @@ export default function ProductsPage() {
 
                       <tr
                         key={product.id}
+                        className={product.pending ? "optimistic-row" : undefined}
                       >
 
                         {/* PRODUK */}
@@ -582,6 +670,10 @@ export default function ProductsPage() {
                           <strong>
                             {product.name}
                           </strong>
+
+                          {product.pending && (
+                            <div className="saving-badge">Menyimpan…</div>
+                          )}
 
                         </td>
 
@@ -645,7 +737,7 @@ export default function ProductsPage() {
 
                         <td>
 
-                          {isAdmin(user) ? (
+                          {isAdmin(user) && !product.pending ? (
 
                             <div className="product-actions-buttons">
 

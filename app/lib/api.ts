@@ -157,14 +157,18 @@ export function getUser(): User | null {
   }
 }
 
+// Token juga disimpan di cookie supaya Server Action (yang berjalan di server
+// dan tidak bisa membaca localStorage) bisa memeriksa login.
 function saveSession(token: string, user: User) {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+  document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=3600; SameSite=Lax`;
 }
 
 export function clearSession() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  document.cookie = `${TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
 }
 
 // Logout: token dimasukkan ke blacklist di backend (tidak bisa dipakai lagi),
@@ -299,6 +303,24 @@ export async function register(input: {
   const res = await request<{ data: AuthData }>("POST", "/auth/register", input);
   saveSession(res.data.token, res.data.user);
   return res.data.user;
+}
+
+// Profil user yang sedang login. Data di browser ikut diperbarui
+// supaya nama/email di sidebar & header langsung sesuai.
+export async function getProfile() {
+  const user = await request<User>("GET", "/auth/me");
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  return user;
+}
+
+export async function updateProfile(input: {
+  fullName: string;
+  email: string;
+  phone: string;
+}) {
+  const user = await request<User>("PUT", "/auth/me", input);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  return user;
 }
 
 // =====================================

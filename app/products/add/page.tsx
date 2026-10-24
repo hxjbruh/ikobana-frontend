@@ -1,58 +1,45 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { requireLogin } from "../../lib/api";
+import { createProductAction } from "../actions";
 import {
-  adjustStock,
-  CATEGORY_LABELS,
-  createProduct,
-  requireLogin,
-  type ProductCategory,
-} from "../../lib/api";
+  emptyFormState,
+  formValues,
+  ProductFields,
+  resultToState,
+  validateOnClient,
+  asActionInput,
+  type ProductFormState,
+} from "../product-form";
 
 export default function AddProductPage() {
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [priceModal, setPriceModal] = useState("");
-  const [stock, setStock] = useState("");
-  const [description, setDescription] = useState("");
-  const [saving, setSaving] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     requireLogin(["ADMIN"]);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
+  // Form -> validasi klien (schema bersama) -> Server Action (safeParse di server).
+  // Hasilnya (error per field / sukses) ditampilkan lewat useActionState.
+  const [state, formAction, saving] = useActionState(
+    async (_prev: ProductFormState, formData: FormData): Promise<ProductFormState> => {
+      const values = formValues(formData);
 
-    try {
-      const product = await createProduct({
-        sku: `PR${Date.now().toString().slice(-6)}`,
-        name,
-        category: category as ProductCategory,
-        priceRetail: Number(price),
-        priceModal: Number(priceModal),
-        minimumStock: 5,
-        description,
-      });
+      const clientErrors = validateOnClient(values);
+      if (clientErrors) return { values, fieldErrors: clientErrors };
 
-      // Produk baru dibuat dengan stok 0, lalu stok awal ditambahkan.
-      if (Number(stock) > 0) {
-        await adjustStock(product.id, Number(stock), "Stok awal");
+      const result = await createProductAction(asActionInput(values));
+      if (result.data) {
+        router.push("/products");
+        return { values: {}, fieldErrors: {}, success: true };
       }
-
-      alert("Produk berhasil ditambahkan!");
-
-      router.push("/products");
-    } catch (err) {
-      alert(`Gagal menambahkan produk: ${(err as Error).message}`);
-      setSaving(false);
-    }
-  };
+      return resultToState(values, result);
+    },
+    emptyFormState
+  );
 
   return (
     <div className="dashboard-layout">
@@ -140,133 +127,12 @@ export default function AddProductPage() {
         <section className="transaction-detail-card">
 
           <form
-            onSubmit={handleSubmit}
+            action={formAction}
+            noValidate
             className="product-form"
           >
 
-            <div className="form-group">
-
-              <label>
-                Nama Produk
-              </label>
-
-              <input
-                type="text"
-                placeholder="Masukkan nama produk"
-                value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
-                required
-              />
-
-            </div>
-
-            <div className="form-group">
-
-              <label>
-                Kategori
-              </label>
-
-              <select
-                value={category}
-                onChange={(e) =>
-                  setCategory(e.target.value)
-                }
-                required
-              >
-
-                <option value="">
-                  Pilih kategori
-                </option>
-
-                {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-
-              </select>
-
-            </div>
-
-            <div className="form-row">
-
-              <div className="form-group">
-
-                <label>
-                  Harga Jual
-                </label>
-
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Contoh: 30000"
-                  value={price}
-                  onChange={(e) =>
-                    setPrice(e.target.value)
-                  }
-                  required
-                />
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Harga Modal
-                </label>
-
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Contoh: 22000"
-                  value={priceModal}
-                  onChange={(e) =>
-                    setPriceModal(e.target.value)
-                  }
-                  required
-                />
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Stok
-                </label>
-
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Contoh: 20"
-                  value={stock}
-                  onChange={(e) =>
-                    setStock(e.target.value)
-                  }
-                  required
-                />
-
-              </div>
-
-            </div>
-
-            <div className="form-group">
-
-              <label>
-                Deskripsi
-              </label>
-
-              <textarea
-                placeholder="Masukkan deskripsi produk"
-                value={description}
-                onChange={(e) =>
-                  setDescription(e.target.value)
-                }
-                rows={5}
-              />
-
-            </div>
+            <ProductFields state={state} />
 
             <div className="form-actions">
 

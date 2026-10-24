@@ -175,48 +175,6 @@ body {
 }
 
 /* =========================
-   INGAT PASSWORD
-========================= */
-
-.login-option {
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  margin-top: -5px;
-
-  margin-bottom: 18px;
-
-  font-size: 11px;
-}
-
-.remember {
-  display: flex !important;
-
-  align-items: center;
-
-  gap: 5px;
-
-  margin: 0 !important;
-
-  font-weight: normal !important;
-}
-
-.remember input {
-  width: auto !important;
-
-  margin: 0;
-}
-
-.login-option a {
-  color: #1261e8;
-
-  text-decoration: none;
-}
-
-/* =========================
    BUTTON LOGIN
 ========================= */
 
@@ -245,51 +203,303 @@ body {
 }
 
 /* =========================
-   GOOGLE
+   HALAMAN LOGIN (desain Figma)
+   Kelas lama di atas masih dipakai register & forbidden.
 ========================= */
 
-.google-button {
+.auth-page {
+  --auth-blue: #2563eb;
+  --auth-blue-dark: #0047c4;
+  --auth-text: #0f172a;
+  --auth-muted: #64748b;
+  --auth-field: #eef2ff;
+  --auth-border: #e2e8f0;
+
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 32px 16px;
+
+  font-family: var(--font-jakarta), Arial, Helvetica, sans-serif;
+  color: var(--auth-text);
+
+  /* Cahaya biru lembut di belakang kartu */
+  background:
+    radial-gradient(ellipse 420px 520px at 50% 50%, rgba(37, 99, 235, 0.1), transparent 70%),
+    #f8f9ff;
+}
+
+.auth-card {
   width: 100%;
-
-  height: 42px;
-
-  border: 1px solid #dce2ec;
-
-  border-radius: 7px;
+  max-width: 480px;
 
   background: white;
 
-  color: #30394b;
+  padding: 32px;
+
+  border-radius: 16px;
+
+  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.1);
+
+  text-align: center;
+}
+
+.auth-logo {
+  width: 68px;
+  height: 68px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--auth-field);
+
+  border-radius: 12px;
+}
+
+.auth-logo img {
+  width: 48px;
+  height: auto;
+}
+
+.auth-brand {
+  margin: 0;
+
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.auth-brand-sub {
+  margin: 4px 0 24px;
+
+  font-size: 12px;
+  color: var(--auth-muted);
+}
+
+.auth-title {
+  margin: 0;
+
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.auth-desc {
+  margin: 8px 0 56px;
+
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--auth-muted);
+}
+
+.auth-form {
+  text-align: left;
+}
+
+.auth-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  margin-bottom: 6px;
+}
+
+.auth-label-row label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.auth-hint {
+  font-size: 11px;
+  color: var(--auth-muted);
+}
+
+.auth-link {
+  color: var(--auth-blue-dark);
+
+  font-size: 11px;
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-input {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  height: 40px;
+
+  margin-bottom: 18px;
+
+  padding: 0 12px;
+
+  background: var(--auth-field);
+
+  border: 1px solid var(--auth-border);
+  border-radius: 6px;
+
+  color: var(--auth-muted);
+}
+
+.auth-input:focus-within {
+  border-color: var(--auth-blue);
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.auth-input input {
+  flex: 1;
+  min-width: 0;
+
+  height: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  font: inherit;
+  font-size: 14px;
+  color: var(--auth-text);
+}
+
+.auth-eye {
+  display: flex;
+
+  padding: 4px;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--auth-muted);
 
   cursor: pointer;
-
-  font-size: 12px;
 }
 
-.google-button:hover {
-  background: #f7f8fb;
+.auth-error {
+  margin: -6px 0 12px;
+
+  font-size: 13px;
+  color: #dc2626;
 }
 
-/* =========================
-   DAFTAR
-========================= */
+.auth-btn-primary,
+.auth-btn-secondary {
+  width: 100%;
 
-.register-text {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 
-  margin-top: 22px;
+  border: none;
 
-  color: #737d91;
+  color: white;
 
-  font-size: 12px;
-}
-
-.register-text a {
-  color: #1261e8;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
 
   text-decoration: none;
 
+  cursor: pointer;
+}
+
+.auth-btn-primary {
+  height: 44px;
+
+  margin-top: 42px;
+
+  background: var(--auth-blue);
+
+  border-radius: 6px;
+}
+
+.auth-btn-primary:hover {
+  background: #1d4fd8;
+}
+
+.auth-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.auth-btn-secondary {
+  height: 48px;
+
+  margin-top: 50px;
+
+  background: var(--auth-blue-dark);
+
+  border-radius: 10px;
+
+  box-shadow: 0 8px 18px rgba(0, 71, 196, 0.25);
+}
+
+.auth-btn-secondary:hover {
+  background: #003ba3;
+}
+
+.auth-footnote {
+  margin: 34px 0 12px;
+
+  font-size: 12px;
+  color: #475569;
+}
+
+.auth-help {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  padding: 10px;
+
+  background: #f8faff;
+
+  border-radius: 6px;
+
+  font-size: 11px;
   font-weight: 600;
+  color: #475569;
+}
+
+.auth-copyright {
+  margin: 16px 0 0;
+
+  font-size: 11px;
+  color: var(--auth-muted);
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 24px 20px;
+  }
+
+  .auth-desc {
+    margin-bottom: 32px;
+  }
+
+  .auth-btn-primary {
+    margin-top: 28px;
+  }
+
+  .auth-btn-secondary {
+    margin-top: 16px;
+  }
 }
 
 /* =========================
@@ -1152,6 +1362,57 @@ td {
 
 .form-group textarea {
   resize: vertical;
+}
+
+/* Field terkunci (belum klik Edit Profil / memang tidak bisa diubah) */
+.settings-form input:read-only {
+  background: #f4f6fa;
+  color: #4a5568;
+  cursor: default;
+}
+
+.settings-form input:read-only:focus {
+  border-color: #dce2ec;
+}
+
+.settings-title-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.secondary-button {
+  background: white;
+  border: 1px solid #dce2ec;
+  color: #253858;
+  padding: 11px 18px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.settings-message {
+  margin: -6px 0 18px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.settings-message.success {
+  background: #e8f7ee;
+  color: #1e7a46;
+}
+
+.settings-message.error {
+  background: #fdecec;
+  color: #c53030;
 }
 
 .setting-option {
