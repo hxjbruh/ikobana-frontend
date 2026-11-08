@@ -1,0 +1,215 @@
+/* Halaman operasional admin: Pesanan, Pengiriman, Restok Barang, Notifikasi.
+   Melanjutkan gaya dashboard (.dash-*) di globals.css. */
+
+.ops-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--adm-faint);
+}
+
+.ops-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.ops-btn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: 0.22px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ops-btn.primary {
+  background: var(--adm-blue);
+  color: white;
+}
+
+.ops-btn.primary:hover {
+  background: var(--adm-blue-dark);
+}
+
+.ops-btn.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ops-btn.danger {
+  background: var(--adm-red-soft);
+  color: var(--adm-red-dark);
+}
+
+.ops-btn.ghost {
+  background: #eef0f6;
+  color: var(--adm-muted);
+}
+
+.ops-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.ops-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+
+.ops-tabs button .ops-count {
+  display: inline-block;
+  min-width: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.ops-message {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.ops-message.success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.ops-message.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+/* ----- Restok ----- */
+
+.ops-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ops-qty input {
+  width: 80px;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  text-align: right;
+}
+
+.ops-qty input.invalid {
+  border-color: var(--adm-red);
+  background: #fef2f2;
+}
+
+.ops-field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--adm-red);
+}
+
+.dash-table tr.ops-highlight td {
+  background: #eff6ff;
+}
+
+.ops-stock {
+  font-weight: 700;
+}
+
+.ops-stock.out {
+  color: var(--adm-red);
+}
+
+.ops-stock.low {
+  color: #b45309;
+}
+
+/* ----- Notifikasi ----- */
+
+.ops-notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ops-notif {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f6f8ff;
+  border-left: 4px solid var(--adm-blue);
+}
+
+.ops-notif.read {
+  background: white;
+  border-left-color: #d1d5db;
+  opacity: 0.75;
+}
+
+.ops-notif.danger { border-left-color: var(--adm-red); }
+.ops-notif.warning { border-left-color: #f59e0b; }
+.ops-notif.success { border-left-color: #16a34a; }
+.ops-notif.read.danger,
+.ops-notif.read.warning,
+.ops-notif.read.success { border-left-color: #d1d5db; }
+
+.ops-notif-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ops-notif-body strong {
+  display: block;
+  font-size: 14px;
+  color: var(--adm-text);
+}
+
+.ops-notif-body p {
+  margin: 2px 0 4px;
+  font-size: 13px;
+  color: var(--adm-muted);
+}
+
+.ops-notif-body time {
+  font-size: 11px;
+  color: var(--adm-faint);
+}
+
+.ops-notif-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--adm-blue);
+  flex-shrink: 0;
+}
+
+.ops-notif.read .ops-notif-dot {
+  background: transparent;
+}
+
+a.ops-btn {
+  display: inline-block;
+  text-decoration: none;
+}

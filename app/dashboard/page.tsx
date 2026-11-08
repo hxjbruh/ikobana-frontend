@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import AdminShell, { initials } from "../components/AdminShell";
+import { sidebarBadges } from "../lib/notifications";
 import {
   formatRupiah,
   getProducts,
@@ -169,10 +170,6 @@ export default function DashboardPage() {
   const trxGrowth = growth(thisMonthTrx.length, lastMonthTrx.length);
   const revenueGrowth = growth(revenueThisMonth, revenue(lastMonthTrx));
 
-  const pendingOrders = transactions.filter(
-    (t) => t.deliveryStatus === "PENDING" || t.deliveryStatus === "PROCESSING"
-  ).length;
-
   // ===== Grafik =====
   const { bars, days } = buildBars(transactions.filter(isSale), period, now);
   const periodTotal = bars.reduce((sum, b) => sum + b.total, 0);
@@ -192,7 +189,7 @@ export default function DashboardPage() {
   });
 
   return (
-    <AdminShell user={user} badges={{ pesanan: pendingOrders, notifikasi: lowStock.length }}>
+    <AdminShell user={user} badges={sidebarBadges(user, products, transactions)}>
       <div className="dash">
         {/* JUDUL */}
         <div className="dash-head">
@@ -393,9 +390,11 @@ export default function DashboardPage() {
                       )}
                     </div>
                   </div>
-                  <Link href={`/products/edit/${product.id}`} className="dash-low-btn">
-                    Update Stok
-                  </Link>
+                  {user?.role === "ADMIN" && (
+                    <Link href={`/restock?produk=${product.id}`} className="dash-low-btn">
+                      Update Stok
+                    </Link>
+                  )}
                 </div>
               ))}
 

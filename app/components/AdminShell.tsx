@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { User } from "../lib/api";
+import "./ops.css";
 
 // Kerangka halaman admin (sidebar + header) mengikuti desain Figma "web hight fidelity".
 // Halaman yang belum dibuat (href null) tetap tampil di menu tapi belum bisa diklik.
@@ -20,11 +21,11 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "nav-dashboard", iconWidth: 15, iconHeight: 15 },
   { label: "Produk & Stok", href: "/products", icon: "nav-produk", iconWidth: 16.667, iconHeight: 16.667 },
-  { label: "Pesanan", href: null, icon: "nav-pesanan", iconWidth: 13.333, iconHeight: 16.667, badgeKey: "pesanan" },
+  { label: "Pesanan", href: "/orders", icon: "nav-pesanan", iconWidth: 13.333, iconHeight: 16.667, badgeKey: "pesanan" },
   { label: "Monitoring Transaksi", href: "/transactions", icon: "nav-transaksi", iconWidth: 15, iconHeight: 16.667 },
-  { label: "Notifikasi", href: null, icon: "nav-notifikasi", iconWidth: 20, iconHeight: 20, badgeKey: "notifikasi" },
-  { label: "Restok Barang", href: null, icon: "nav-restok", iconWidth: 16.667, iconHeight: 16.583 },
-  { label: "Pengiriman", href: null, icon: "nav-pengiriman", iconWidth: 18.333, iconHeight: 13.333 },
+  { label: "Notifikasi", href: "/notifications", icon: "nav-notifikasi", iconWidth: 20, iconHeight: 20, badgeKey: "notifikasi" },
+  { label: "Restok Barang", href: "/restock", icon: "nav-restok", iconWidth: 16.667, iconHeight: 16.583 },
+  { label: "Pengiriman", href: "/shipping", icon: "nav-pengiriman", iconWidth: 18.333, iconHeight: 13.333 },
   { label: "Pengaturan Sistem", href: "/settings", icon: "nav-pengaturan", iconWidth: 16.75, iconHeight: 16.667 },
 ];
 
