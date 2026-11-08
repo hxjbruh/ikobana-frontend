@@ -65,7 +65,37 @@ Form → validasi klien (productSchema) → useOptimistic (baris sementara)
 
 Token login disimpan juga di cookie `ikobana_token` (selain `localStorage`) karena Server Action berjalan di server dan tidak bisa membaca `localStorage`.
 
+### Screenshot bukti kriteria selesai
+
+**1. Data tidak valid → error di bawah field yang tepat**
+
 ![Error validasi per field](docs/screenshots/validasi-per-field.jpg)
+
+**2. Server menolak data tidak valid walau validasi klien dilewati (uji dengan curl)**
+
+Request dikirim langsung ke Server Action tanpa lewat form, jadi validasi di browser tidak berjalan.
+Server tetap menolak: tanpa login / token palsu ditolak, dan data salah dibalas error per field.
+
+![Uji curl ke Server Action](docs/screenshots/curl-server-menolak.jpg)
+
+**3. Item baru muncul seketika, lalu diganti data dari server**
+
+Sebelum server menjawab: baris "Menyimpan…" (pudar, SKU belum ada) langsung tampil di tabel.
+Untuk foto ini respons server sengaja diperlambat di browser supaya momennya sempat difoto;
+tanpa perlambatan prosesnya hanya ±0,25 detik.
+
+![Baris optimistik sebelum dikonfirmasi server](docs/screenshots/optimistik-1-menyimpan.jpg)
+
+Setelah server menjawab: baris diganti data asli dari server (SKU `PR810407`, tombol Edit/Hapus muncul).
+
+![Baris sudah diganti data dari server](docs/screenshots/optimistik-2-dari-server.jpg)
+
+**4. Pengguna yang belum login ditolak oleh action**
+
+Cookie login dihapus, lalu form Tambah Cepat dikirim. Action menolak ("Anda harus login terlebih dahulu.")
+dan baris sementara "Bakso Ikan" otomatis hilang dari tabel.
+
+![Action menolak pengguna yang belum login](docs/screenshots/belum-login-ditolak.jpg)
 
 ### Hasil uji kriteria selesai (24 Oktober 2026)
 
